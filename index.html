@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>거리 계산</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.min.css">
+    <script type="text/javascript"
+        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=!!APIKEYHERE!!"></script>
+
+    <script type="text/javascript"
+        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=!!APIKEYHERE!!&libraries=services"></script>
+    <script>
+    </script>
+    <style>
+        body {
+            padding: 1em;
+        }
+
+        #fix {
+            display: flex !important;
+        }
+
+        #map {
+            width: 600px;
+            height: 600px;
+        }
+
+        input[type="text"] {
+            width: 450px;
+        }
+
+        input[type="button"] {
+            width: 100px;
+        }
+
+        .inlineField {
+            width: 600px;
+            float: left;
+        }
+
+        .field {
+            width: 490px;
+            margin-right: 10px;
+            float: left
+        }
+
+        .fieldButton {
+            width: 100px;
+            float: left;
+        }
+        .form{
+            height: 70px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main" style="height: 100%; width: 600px; margin: auto;">
+        <div style="height: 50px;">
+            <h1>거리 계산기</h1>
+        </div>
+        <div class="ui form">
+            <div class="inlineField">
+                <div>
+                    <label>기준점 1</label>
+                </div>
+                <div>
+                    <div class="field">
+                        <input readonly type="text" id="address1" placeholder="기준점 1 주소" data-addr="" data-long=""
+                            data-lat="">
+                    </div>
+                    <div class="fieldButton">
+                        <input type="button" value="검색" onclick="search(1)">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="ui form">
+            <div class="inlineField">
+                <div>
+                    <label>기준점 2</label>
+                </div>
+                <div>
+                    <div class="field">
+                        <input readonly type="text" id="address2" placeholder="기준점 2 주소" data-addr="" data-long=""
+                            data-lat="">
+                    </div>
+                    <div class="fieldButton">
+                        <input type="button" value="검색" onclick="search(2)">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <input type="button" value="calculate!" onclick="setLine()" style="width: 600px;">
+        <div id="map">
+
+        </div>
+        <div id="result">
+            거리:
+            <div id="distance"></div>
+        </div>
+
+    </div>
+</body>
+<!--map load-->
+<script>
+    var container = document.getElementById('map');
+    var options = {
+        center: new kakao.maps.LatLng(37.52977360379245, 126.96474263398179),
+        level: 8
+    };
+    var map = new kakao.maps.Map(container, options);
+    var polyline
+    var markerArray = []
+</script>
+<!--functions-->
+<script>
+    function setLine() {
+        try {
+            polyline.setMap(null)
+        } catch {}
+        polyline = new kakao.maps.Polyline({
+            path: [
+                new kakao.maps.LatLng(document.getElementById("address1").dataset.long, document.getElementById("address1").dataset.lat),
+                new kakao.maps.LatLng(document.getElementById("address2").dataset.long, document.getElementById("address2").dataset.lat),
+                ], // 선을 구성하는 좌표배열
+            strokeWeight: 5, // 선의 두께
+            strokeColor: '#FFAE00', // 선의 색깔
+            strokeOpacity: 0.7, // 선의 불투명도 1에서 0 사이의 값이며 0에 가까울수록 투명
+            strokeStyle: 'solid' // 선의 스타일
+        });
+        document.getElementById("distance").innerText = Math.round(polyline.getLength()) + " m"
+
+        polyline.setMap(map)
+    }
+    function setCenter() {
+        let firstAddress = document.getElementById("address1")
+        let moveLocation = new kakao.maps.LatLng(firstAddress.dataset.long, firstAddress.dataset.lat)
+        map.panTo(moveLocation)
+    }
+    function addMarker(lat, lng, index) {
+        try{
+            markerArray[index].setMap(null)
+        } catch {}
+        var markerPosition = new kakao.maps.LatLng(lng, lat);
+        var marker = new kakao.maps.Marker({
+            position: markerPosition
+        });
+        marker.setMap(map)
+        markerArray[index] = marker
+    }
+    function search(point) {
+        var win = window.open("/searchAddress.htm?point=" + point, "_blank", "width=400,height=600");
+    }
+</script>
+
+</html>

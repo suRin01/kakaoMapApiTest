@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.min.css">
+    <script type="text/javascript"
+        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=!!APIKEYHERE!!&libraries=services"></script>
+    <script>
+        function search(){
+            let ps = new kakao.maps.services.Places();
+            ps.keywordSearch(document.getElementById("searchKeyWord").value, placesSearchCB)
+        }
+        function placesSearchCB(data, status, pagination) {
+            if (status === kakao.maps.services.Status.OK) {
+                console.log(data)
+                let index = 0
+                document.getElementById("items").innerHTML = ""
+                data.forEach(element => {
+                    createRows(index, element.place_name, element.road_address_name, element)
+                    index++
+                });
+            }
+            else{
+
+            }
+        }
+        function createRows(idx, name, addr, details){
+            let boxDiv = document.createElement("div");
+            boxDiv.className = "floating";
+            boxDiv.dataset.addr = details.road_address_name
+            boxDiv.dataset.long = details.x
+            boxDiv.dataset.lat = details.y
+
+            boxDiv.onclick = function(){
+                copyFunc(details.road_address_name, details.x, details.y)
+            }
+            let idxDiv = document.createElement("div");
+            idxDiv.className = "idx";
+            let idxText = document.createTextNode(idx)
+            idxDiv.appendChild(idxText)
+            boxDiv.appendChild(idxDiv)
+            
+            let nameDiv = document.createElement("div");
+            nameDiv.className = "name";
+            let nameText = document.createTextNode(name)
+            nameDiv.appendChild(nameText)
+            boxDiv.appendChild(nameDiv)
+
+            let addrDiv = document.createElement("div");
+            addrDiv.className = "addr";
+            let addrText = document.createTextNode(addr)
+            addrDiv.appendChild(addrText)
+            boxDiv.appendChild(addrDiv)
+
+
+            document.getElementById("items").appendChild(boxDiv)
+        }
+
+        function copyFunc(addr, lat, long) {
+            if (window.opener != null && !window.opener.closed) {
+                let currnetURL = new URL(window.location.href)
+                if (currnetURL.searchParams.get("point") == "1") {
+                    let parent = window.opener.document.getElementById("address1");
+                    parent.value = addr;
+                    parent.dataset.long = long;
+                    parent.dataset.lat = lat;
+
+                    window.opener.setCenter()
+                    window.opener.addMarker(lat, long, 0)
+                } else if (currnetURL.searchParams.get("point") == "2") {
+                    let parent = window.opener.document.getElementById("address2");
+                    parent.value = addr;
+                    parent.dataset.long = long;
+                    parent.dataset.lat = lat;
+                    
+                    window.opener.addMarker(lat, long, 1)
+                }
+            }
+            window.close();
+        }
+    </script>
+    <style>
+        input[type="text"] {
+            width: 255px;
+        }
+        input[type="button"] {
+            width: 88px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        .inlineField {
+            width: 380px;
+            margin-bottom: 15px;
+            float: left;
+        }
+
+        .field {
+            width: 275px;
+            margin-right: 15px;
+            float: left
+        }
+
+        .fieldButton {
+            width: 60px;
+            float: left;
+        }
+        .floating{
+            font-size: 90%;
+            height: 20px;
+            margin-bottom: 20px;
+            float: left;
+        }
+        .idx{
+            height: 100%;
+            width: 35px;
+            float: left;
+        }
+        .name{
+            height: 100%;
+            width: 110px;
+            margin-right: 10px;
+            overflow: hidden; 
+            float: left;
+        }
+        .addr{
+            height: 100%;
+            width: 215px;
+            float: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <p>주소 검색</p>
+    </div>
+    <div class="inlineField">
+        <div class="field">
+            <input type="text" id="searchKeyWord">
+        </div>
+        <div class="fieldButton">
+            <input type="button" onclick="search()" value="Search">
+        </div>
+    </div>
+
+
+
+
+    <div class="floating">
+        <div class="idx">
+            Idx
+        </div>
+        <div class="name">
+            Name
+        </div>
+        <div class="addr">
+            Addr.
+        </div>
+
+    </div>
+
+
+
+
+    <div id="items">
+
+    </div>
+</body>
+
+</html>
